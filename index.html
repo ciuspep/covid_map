@@ -19,16 +19,17 @@
    <div class="slidecontainer"> 
        <input type="range" min="1" max="100" value="150" class="slider" id="myRange">
    </div>
+   <div class="ora_aggiornamento">Ultimo aggiornamento: 22/06/2020</div>
    <p><span id="valueId" class="hidden"></span></p>
-   <script type="text/javascript" src="province.dati.GeoJSon.js"></script>
+   <script type="text/javascript" src="province.dati.GeoJSonDiff.js"></script>
    <script type="text/javascript">
 	
         var zoom = 7;
 		var startLat = 43.138968;
 		var startLong = 12.041016;
 
-        var valoreMassimo = 14000;
-        var valoreMinimo = 100;
+        var valoreMassimo = 40;
+        var valoreMinimo = 0;
 
         var slider = document.getElementById("myRange");
         slider.max = valoreMassimo;
@@ -58,7 +59,7 @@
 
 		info.update = function (props) {
 			this._div.innerHTML = '<h4>COVID 19</h4>' +  (props ?
-				'<b>' + props.NOME_PRO + '</b><br />' + props.totale_casi + ' positivi'
+				'<b>' + props.NOME_PRO + '</b><br />' + props.diff_casi + ' nuovi positivi'
 				: 'passa sopra una provincia');
 		};
 
@@ -81,7 +82,7 @@
 		function style(feature) {
 
 		    return {
-		        fillColor: getColor(feature.properties.totale_casi),
+		        fillColor: getColor(feature.properties.diff_casi),
 		        weight: 2,
 		        opacity: 1,
 		        color: 'white',
