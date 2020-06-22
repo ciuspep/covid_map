@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin=""/>
+    <link rel="stylesheet" type="text/css" href="mystyle.css">
+
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+            integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+            crossorigin=""></script>
+</head>
+
+<body>
+
+   <div id="mapid"></div>
+   <div class="slidecontainer"> 
+       <input type="range" min="1" max="100" value="150" class="slider" id="myRange">
+   </div>
+   <p><span id="valueId" class="hidden"></span></p>
+   <script type="text/javascript" src="province.dati.GeoJSon.js"></script>
+   <script type="text/javascript">
+	
+        var zoom = 7;
+		var startLat = 43.138968;
+		var startLong = 12.041016;
+
+        var valoreMassimo = 14000;
+        var valoreMinimo = 100;
+
+        var slider = document.getElementById("myRange");
+        slider.max = valoreMassimo;
+        slider.min = valoreMinimo;
+        slider.value = (valoreMassimo + valoreMinimo) / 2;
+
+        var output = document.getElementById("valueId");
+        output.innerHTML = slider.value;
+
+        var mapboxAccessToken = 'pk.eyJ1IjoiY2l1c3BlcCIsImEiOiJjazhnMWUxeGQwNTJoM29wMGc2cGgzMWszIn0.J0O56UK48bLO-cwnvdC85Q';
+		var map = L.map('mapid').setView([startLat, startLong], zoom);
+
+		L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
+		    id: 'mapbox/light-v9',
+		    attribution: '',
+		    tileSize: 512,
+		    zoomOffset: -1
+		}).addTo(map);       
+
+		var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info');
+			this.update();
+			return this._div;
+		};
+
+		info.update = function (props) {
+			this._div.innerHTML = '<h4>COVID 19</h4>' +  (props ?
+				'<b>' + props.NOME_PRO + '</b><br />' + props.totale_casi + ' positivi'
+				: 'passa sopra una provincia');
+		};
+
+		info.addTo(map);
+
+        function getColor(d) {
+
+            ampFasc = (valoreMassimo - valoreMinimo) / 6;
+
+		    return d > valoreMinimo + ampFasc * 6  ? '#990000' :
+		           d > valoreMinimo + ampFasc * 5  ? '#d7301f' :
+		           d > valoreMinimo + ampFasc * 4  ? '#ef6548' :
+		           d > valoreMinimo + ampFasc * 3  ? '#fc8d59' :
+		           d > valoreMinimo + ampFasc * 2  ? '#fdbb84' :
+		           d > valoreMinimo + ampFasc      ? '#fdd49e' :
+		           d > valoreMinimo                ? '#fee8c8' :
+		                                             '#fff7ec';
+		}
+
+		function style(feature) {
+
+		    return {
+		        fillColor: getColor(feature.properties.totale_casi),
+		        weight: 2,
+		        opacity: 1,
+		        color: 'white',
+		        dashArray: '3',
+		        fillOpacity: 0.7
+		    };
+		}
+
+		var geojson;
+
+		function highlightFeature(e) {
+		    var layer = e.target;
+
+		    layer.setStyle({
+		        weight: 2,
+		        color: '#666',
+		        dashArray: '',
+		        fillOpacity: 0.7
+		    });
+
+		    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+		        layer.bringToFront();
+		    }
+
+		    info.update(layer.feature.properties);
+		}
+
+		function resetHighlight(e) {
+		    geojson.resetStyle(e.target);
+		    info.update()
+		}
+
+		function zoomToFeature(e) {
+		    map.fitBounds(e.target.getBounds());
+		}
+
+		function onEachFeature(feature, layer) {
+		    layer.on({
+		        mouseover: highlightFeature,
+		        mouseout: resetHighlight,
+		        click: zoomToFeature
+		    });
+		}
+
+		geojson = L.geoJson(provinceData, {
+		    style: style,
+		    onEachFeature: onEachFeature
+		}).addTo(map)
+
+
+	 	var legend = L.control({position: 'bottomright'});
+
+		legend.onAdd = function (map) {
+
+            ampFasc = (valoreMassimo - valoreMinimo) / 6;
+
+			var div = L.DomUtil.create('div', 'info legend'),
+				grades = [0,
+				          valoreMinimo, 
+				          Number((valoreMinimo + ampFasc).toFixed(0)), 
+				          Number((valoreMinimo + ampFasc * 2).toFixed(0)), 
+				          Number((valoreMinimo + ampFasc * 3).toFixed(0)),
+				          Number((valoreMinimo + ampFasc * 4).toFixed(0)),
+				          Number((valoreMinimo + ampFasc * 5).toFixed(0)),
+				          Number((valoreMinimo + ampFasc * 6))],
+				labels = [],
+				from, to;
+
+			for (var i = 0; i < grades.length; i++) {
+				from = grades[i];
+				to = grades[i + 1];
+
+                currColor = getColor(from + 1);
+				labels.push(
+					'<i style="background:' + currColor + '"></i> ' +
+					from + (to ? '&ndash;' + to : '+'));
+			}
+
+			div.innerHTML = labels.join('<br>');
+			return div;
+		};
+
+		legend.addTo(map);       
+
+        slider.oninput = function() {
+           
+           output.innerHTML = slider.value;
+           valoreMassimo = slider.value;
+           map.removeControl(legend);
+           map.addControl(legend);
+           geojson.resetStyle();
+        }
+
+   </script>
+</body>
+</html>
