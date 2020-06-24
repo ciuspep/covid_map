@@ -76,4 +76,10 @@ body {
 
 #data_aggiornamento {
   font-weight: bold;
+  width: 100%;
+}
+
+#fonte_dati {
+    
+    text-align: center;
 }
