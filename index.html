@@ -2,6 +2,7 @@
 <html>
    <head>
       <title></title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="img/favicon2.png" type="image/png" />
       <link
          rel="stylesheet"
@@ -158,7 +159,9 @@
          }
 
          function zoomToFeature(e) {
+            var layer = e.target;
             map.fitBounds(e.target.getBounds());
+            info.update(layer.feature.properties);
          }
 
          function onEachFeature(feature, layer) {

@@ -6,7 +6,7 @@ body {
 }
 
 #mapid {
-   min-height: 85vh;
+   min-height: 70vh;
 }
 
 .info {
@@ -86,4 +86,10 @@ body {
 
 #fonte_dati {
    text-align: center;
+}
+
+@media only screen and (min-width: 768px) {
+   #mapid {
+      min-height: 92vh;
+   }
 }
