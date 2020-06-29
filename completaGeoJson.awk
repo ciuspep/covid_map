@@ -20,7 +20,7 @@ BEGIN {
 #    print "file name = ", homeDir 
     while ((getline  < (homeDir) ) > 0) { 
         a[$6] = $10
-        d[$6] = $13
+        d[$6] = $12
     }
 
 #    for (x in d)
