@@ -5,8 +5,12 @@ from datetime import timedelta
 
 
 def diffData(aStringDay):
+    if aStringDay == "":
+        lastDay = datetime.datetime.now().strftime('%Y%m%d')
+        print(f"lastDay:{lastDay}")
+    else:
+        lastDay = aStringDay
 
-    lastDay = aStringDay
     date_time_obj = datetime.datetime.strptime(lastDay, '%Y%m%d')
     previousDay = (date_time_obj.date() - timedelta(days=1)).strftime("%Y%m%d")
 
@@ -32,7 +36,8 @@ def diffData(aStringDay):
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        print("Numero non valido di parametri")
+        base_dir = sys.argv[1]
+        diffData("")
     else:
-        base_dir = sys.argv[2]
-        diffData(sys.argv[1])
+        base_dir = sys.argv[1]
+        diffData(sys.argv[2])
