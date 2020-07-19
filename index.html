@@ -56,35 +56,46 @@
             </span>
          </div>
          <p><span id="valueId" class="hidden"></span></p>
-
-          <!-- src="province.dati.GeoJSonDiff.js"  -->
+         
+          <!-- var regioniData -->
          <script
-            type="text/javascript"
-           
-            src = "regioni.geojson.js"
+            type="text/javascript"        
+            src = "regioni.dati.GeoJSon.js"            
          ></script>
+
+         <!-- var provinceData -->
+         <script
+            type="text/javascript"        
+            src="province.dati.GeoJSonDiff.js"
+         ></script>        
       </div>
       <script type="text/javascript">
          var zoom = 7;
          var startLat = 45.04588506;
          var startLong = 8.921915884;
 
-         var valoreMassimo = 40;
-         var valoreMinimo = 0;
+         var valoreMassimoProv = 40;
+         var valoreMinimoProv = 0;
+
+         var valoreMassimoReg = 1000;
+         var valoreMinimoReg = 0;         
+
+         var valoreMassimo = valoreMassimoProv;
+         var valoreMinimo = valoreMinimoProv;
 
          var slider = document.getElementById("myRange");
          slider.max = valoreMassimo;
          slider.min = valoreMinimo;
-         slider.value = (valoreMassimo + valoreMinimo) / 2;
+         slider.value = (valoreMassimo);
 
          var output = document.getElementById("valueId");
          output.innerHTML = slider.value;
 
          var mapboxAccessToken =
             "pk.eyJ1IjoiY2l1c3BlcCIsImEiOiJjazhnMWUxeGQwNTJoM29wMGc2cGgzMWszIn0.J0O56UK48bLO-cwnvdC85Q";
-         var map = L.map("mapid").setView([startLat, startLong], zoom);
+         // var map = L.map("mapid").setView([startLat, startLong], zoom);
 
-         L.tileLayer(
+         var layerProvince = L.tileLayer(
             "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=" +
                mapboxAccessToken,
             {
@@ -93,8 +104,27 @@
                tileSize: 512,
                zoomOffset: -1,
             }
-         ).addTo(map);
+         )
 
+         var layerRegioni = L.tileLayer(
+            "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=" +
+               mapboxAccessToken,
+            {
+               id: "mapbox/light-v9",
+               attribution: "",
+               tileSize: 512,
+               zoomOffset: -1,
+            }
+         )
+
+         var map = L.map('mapid', {
+		                   center: [startLat, startLong],
+		                     zoom: zoom,
+		                   layers: [layerProvince]
+                    });
+
+         var contesto = "province"
+                    
          var info = L.control();
 
          info.onAdd = function (map) {
@@ -102,46 +132,107 @@
             this.update();
             return this._div;
          };
-
-         info.update = function (props) {
+         
+         var funInfoProvince = function (props) {
             this._div.innerHTML =
-               "<h4>COVID 19</h4>" +
+               "<h4>COVID 19 - Province</h4>" +
                (props
                   ? "<b>" +
-                    props.NOME_PRO +
-                    "</b><br />" +
-                    props.diff_casi +
-                    " nuovi positivi</br>(su " +
-                    props.totale_casi +
-                    " totali)"
-                  : "passa sopra una provincia <br> o trascina lo slider per modificare la legenda");
+                  props.NOME_PRO +
+                  "</b><br />" +
+                  props.diff_casi +
+                  " nuovi positivi</br>(su " +
+                  props.totale_casi +
+                  " totali)"
+                  : "passa sopra una provincia/regione <br> o trascina lo slider per modificare la legenda");
          };
+
+         var funInfoRegioni = function (props) {
+            this._div.innerHTML =
+               "<h4>COVID 19 - Regioni</h4>" +
+               (props
+                  ? "<b>" +
+                  props.NOME_REG +
+                  "</b><br />" +
+                  props.diff_casi +
+                  " residui"
+                  : "passa sopra una provincia/regione <br> o trascina lo slider per modificare la legenda");
+         };
+
+         info.update = funInfoProvince;
 
          info.addTo(map);
 
-         function getColor(d) {
+         // ).addTo(map);
+
+         var baseLayers = {
+		         "Dati provinciali": layerProvince,
+		         "Dati regionali": layerRegioni
+	      };
+
+         var switchLayers;
+         switchLayers = L.control.layers(baseLayers,{},collapsed=false);
+         switchLayers.addTo(map);
+
+         map.on('baselayerchange', function(e){
+            console.log(e.name + " LAYER HAS BEEN selected.".toLowerCase());
+            // rappresenta di volta in volta o il layer delle province o quello delle regioni
+            switchLayers.remove(map);
+            geojson.remove(map);
+            legend.remove(map);
+            info.remove(map);
+            if (e.name === "Dati regionali") {
+               contesto = "regioni"; 
+               valoreMassimo = valoreMassimoReg;
+               valoreMinimo = valoreMinimoReg;         
+               geojson = geojsonRegioni;
+               geojson.resetStyle();
+               info.update = funInfoRegioni;
+            } else {
+               contesto = "province";
+               valoreMassimo = valoreMassimoProv;
+               valoreMinimo = valoreMinimoProv;                  
+               geojson = geojsonProv;  
+               geojson.resetStyle();                
+               info.update = funInfoProvince;          
+            }
+            geojson.addTo(map);
+            legend.addTo(map);
+            info.addTo(map);
+            switchLayers.addTo(map);
+         })
+
+
+         function getColor(d, contesto) {
             ampFasc = (valoreMassimo - valoreMinimo) / 6;
 
+            colorArrays = {"province": ["#990000", "#d7301f", "#ef6548", "#fc8d59",
+                                        "#fdbb84", "#fdd49e", "#fee8c8", "#fff7ec"],
+                           "regioni" : ["#005824", "#238b45", "#41ae76", "#66c2a4",
+                                        "#99d8c9", "#ccece6", "#e5f5f9", "#f7fcfd"]};
+            
+
             return d > valoreMinimo + ampFasc * 6
-               ? "#990000"
+               ? colorArrays[contesto][0]
                : d > valoreMinimo + ampFasc * 5
-               ? "#d7301f"
+               ? colorArrays[contesto][1]
                : d > valoreMinimo + ampFasc * 4
-               ? "#ef6548"
+               ? colorArrays[contesto][2]
                : d > valoreMinimo + ampFasc * 3
-               ? "#fc8d59"
+               ? colorArrays[contesto][3]
                : d > valoreMinimo + ampFasc * 2
-               ? "#fdbb84"
+               ? colorArrays[contesto][4]
                : d > valoreMinimo + ampFasc
-               ? "#fdd49e"
+               ? colorArrays[contesto][5]
                : d > valoreMinimo
-               ? "#fee8c8"
-               : "#fff7ec";
+               ? colorArrays[contesto][6]
+               : colorArrays[contesto][7];
          }
 
          function style(feature) {
+            // contesto è una variabile globale: "province" o "regioni"
             return {
-               fillColor: getColor(feature.properties.diff_casi),
+               fillColor: getColor(feature.properties.diff_casi, contesto),
                weight: 2,
                opacity: 1,
                color: "white",
@@ -188,10 +279,18 @@
             });
          }
 
-         geojson = L.geoJson(provinceData, {
+         geojsonProv = L.geoJson(provinceData, {
             style: style,
             onEachFeature: onEachFeature,
-         }).addTo(map);
+         });  //.addTo(map);
+
+         geojsonRegioni = L.geoJson(regioniData, {
+            style: style,
+            onEachFeature: onEachFeature,
+         });  //.addTo(map);
+
+         geojson = geojsonProv;
+         geojsonProv.addTo(map);
 
          var legend = L.control({ position: "bottomright" });
 
@@ -216,8 +315,9 @@
             for (var i = 0; i < grades.length; i++) {
                from = grades[i];
                to = grades[i + 1];
-
-               currColor = getColor(from + 1);
+               
+               // contesto è una variabile globale: "province" o "regioni"
+               currColor = getColor(from + 1, contesto);
                labels.push(
                   '<i style="background:' +
                      currColor +
