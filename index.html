@@ -70,9 +70,9 @@
          ></script>        
       </div>
       <script type="text/javascript">
-         var zoom = 7;
-         var startLat = 45.04588506;
-         var startLong = 8.921915884;
+         var zoom = 6;
+         var startLat = 44.77588506;
+         var startLong = 10.441915884;
 
          var valoreMassimoProv = 40;
          var valoreMinimoProv = 0;
@@ -147,7 +147,7 @@
                   " nuovi positivi</br>(su " +
                   props.totale_casi +
                   " totali)"
-                  : "passa sopra una provincia/regione <br> o trascina lo slider per modificare la legenda");
+                  : "passa sopra una provincia <br> o trascina lo slider per modificare la legenda");
          };
 
          var funInfoRegioni = function (props) {
@@ -159,7 +159,7 @@
                   "</b><br />" +
                   props.diff_casi +
                   " positivi residui"
-                  : "passa sopra una provincia/regione <br> o trascina lo slider per modificare la legenda");
+                  : "passa sopra una regione <br> o trascina lo slider per modificare la legenda");
          };
 
          info.update = funInfoProvince;
@@ -316,12 +316,12 @@
                from,
                to;
 
-            for (var i = 0; i < grades.length; i++) {
+            for (var i = 1; i < grades.length; i++) {
                from = grades[i];
                to = grades[i + 1];
                
                // contesto è una variabile globale: "province" o "regioni"
-               currColor = getColor(from + 1, contesto);
+               currColor = getColor(from+1, contesto);
                labels.push(
                   '<i style="background:' +
                      currColor +
