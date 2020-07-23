@@ -151,6 +151,10 @@
          };
 
          var funInfoRegioni = function (props) {
+            let strPrefix = "";
+            if (props && props.diff_casi_per_regioni > 0) {
+               strPrefix = "+";
+            }
             this._div.innerHTML =
                "<h4>COVID 19 - Regioni</h4>" +
                (props
@@ -158,7 +162,8 @@
                   props.NOME_REG +
                   "</b><br />" +
                   props.diff_casi +
-                  " positivi residui"
+                  " positivi residui" +
+                  "<br />( "+ strPrefix + props.diff_casi_per_regioni + " rispetto a ieri )" 
                   : "passa sopra una regione <br> o trascina lo slider per modificare la legenda");
          };
 
