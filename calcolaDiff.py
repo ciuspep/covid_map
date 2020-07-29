@@ -19,7 +19,9 @@ def diffData(aStringDay):
     covid1 = pd.read_csv(
         base_dir + f"dpc-covid19-ita-province-{previousDay}.csv", index_col="codice_provincia")
 
+    del covid2['note']
     covid2['diff'] = 0
+
 
     for index in covid2.index:
         if index < 200:
