@@ -56,6 +56,12 @@
             </span>
          </div>
          <p><span id="valueId" class="hidden"></span></p>
+ 
+         <!-- var europaData -->
+         <script
+            type="text/javascript"        
+            src="europe.geojson.js"
+         ></script>        
          
           <!-- var regioniData -->
          <script
@@ -78,7 +84,11 @@
          var valoreMinimoProv = 0;
 
          var valoreMassimoReg = 1500;
-         var valoreMinimoReg = 0;         
+         var valoreMinimoReg = 0;      
+ 
+         var valoreMassimoEur = 3500;
+         var valoreMinimoEur = 0;      
+         
 
          var valoreMassimo = valoreMassimoProv;
          var valoreMinimo = valoreMinimoProv;
@@ -92,11 +102,13 @@
          output.innerHTML = slider.value;
 
          var sliderValueProv = valoreMassimoProv;
-         var sliderValueReg = valoreMassimoReg;         
+         var sliderValueReg = valoreMassimoReg; 
+         var sliderValueEur = valoreMassimoEur;
 
          var mapboxAccessToken =
             "pk.eyJ1IjoiY2l1c3BlcCIsImEiOiJjazhnMWUxeGQwNTJoM29wMGc2cGgzMWszIn0.J0O56UK48bLO-cwnvdC85Q";
          // var map = L.map("mapid").setView([startLat, startLong], zoom);
+
 
          var layerProvince = L.tileLayer(
             "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=" +
@@ -110,6 +122,17 @@
          )
 
          var layerRegioni = L.tileLayer(
+            "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=" +
+               mapboxAccessToken,
+            {
+               id: "mapbox/light-v9",
+               attribution: "",
+               tileSize: 512,
+               zoomOffset: -1,
+            }
+         )
+
+         var layerEuropa = L.tileLayer(
             "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=" +
                mapboxAccessToken,
             {
@@ -167,13 +190,22 @@
                   : "passa sopra una regione <br> o trascina lo slider per modificare la legenda");
          };
 
+         var funInfoEuropa = function (props) {
+
+            this._div.innerHTML =
+               "<h4>COVID 19 - Europa</h4>" 
+         
+         };
+
+
          info.update = funInfoProvince;
 
          info.addTo(map);
 
          var baseLayers = {
 		         "Dati provinciali": layerProvince,
-		         "Dati regionali": layerRegioni
+               "Dati regionali": layerRegioni,
+               "Dati europei" : layerEuropa
 	      };
 
          var switchLayers;
@@ -194,12 +226,18 @@
                valoreMinimo = valoreMinimoReg;  
                geojson = geojsonRegioni;
                info.update = funInfoRegioni;
-            } else {
+            } else if (e.name === "Dati provinciali"){
                contesto = "province";
                valoreMassimo = valoreMassimoProv;
                valoreMinimo = valoreMinimoProv;
                geojson = geojsonProv;        
                info.update = funInfoProvince;          
+            } else {
+               contesto = "europa";
+               valoreMassimo = valoreMassimoEur;
+               valoreMinimo = valoreMinimoEur;
+               geojson = geojsonEuropa;        
+               info.update = funInfoEuropa;                   
             }
             geojson.resetStyle();         
             geojson.addTo(map);
@@ -219,6 +257,8 @@
             colorArrays = {"province": ["#990000", "#d7301f", "#ef6548", "#fc8d59",
                                         "#fdbb84", "#fdd49e", "#fee8c8", "#fff7ec"],
                            "regioni" : ["#005824", "#238b45", "#41ae76", "#66c2a4",
+                                        "#99d8c9", "#ccece6", "#e5f5f9", "#f7fcfd"],
+                            "europa" : ["#005824", "#238b45", "#41ae76", "#66c2a4",
                                         "#99d8c9", "#ccece6", "#e5f5f9", "#f7fcfd"]};
             
             return d > valoreMinimo + ampFasc * 6
@@ -294,6 +334,11 @@
          });  //.addTo(map);
 
          geojsonRegioni = L.geoJson(regioniData, {
+            style: style,
+            onEachFeature: onEachFeature,
+         });  //.addTo(map);
+
+         geojsonEuropa = L.geoJson(europaData, {
             style: style,
             onEachFeature: onEachFeature,
          });  //.addTo(map);
