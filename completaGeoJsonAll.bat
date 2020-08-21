@@ -36,7 +36,7 @@ rem **** fine elaborazione province ****
 
 rem **** elaborazione regioni ****
 
-gawk -f %currdir%\completaGeoJsonRegioni.awk %currdir%\europe.geojson.js > %currdir%\europe.dati.geojson.js
+gawk -f %currdir%\completaGeoJsonRegioni.awk %currdir%\regioni.GeoJSon.js > %currdir%\regioni.dati.GeoJSon.js
 
 rem **** fine elaborazione regioni ****
 
@@ -44,7 +44,7 @@ rem **** fine elaborazione regioni ****
 rem **** elaborazione europa ****
 
 python calcolaDiffEuropa.py %homeDirEuropa% %currdir%\ %dataCorrente% 
-gawk -f %currdir%\completaGeoJsonEuropa.awk %currdir%\regioni.GeoJSon.js > %currdir%\regioni.dati.GeoJSon.js
+gawk -f %currdir%\completaGeoJsonEuropa.awk %currdir%\europe.geojson.js > %currdir%\europe.dati.geojson.js
 
 rem **** fine elaborazione europa ****
 
