@@ -49,18 +49,22 @@
             Aggiornamento:
             <span id="data_aggiornamento"></span>
             <span id="fonte_dati"
-               >Fonte dati: <b>Dipartimento della Protezione civile</b>
+               >Fonti dati: <b>Dipartimento della Protezione civile</b>
                <a href="https://github.com/pcm-dpc/COVID-19" target="_blank"
                   >Dati COVID-19 Italia</a
-               >
+               >, <b>Global data repository</b> <a href="https://github.com/CSSEGISandData/COVID-19" target="_blank"
+               >Dati COVID-19 Global</a
+            >
             </span>
+            <span></span>
          </div>
          <p><span id="valueId" class="hidden"></span></p>
+         <p><span id="latlong" class="hidden"></span></p>
  
          <!-- var europaData -->
          <script
             type="text/javascript"        
-            src="europe.geojson.js"
+            src="europe.dati.geojson.js"
          ></script>        
          
           <!-- var regioniData -->
@@ -76,9 +80,19 @@
          ></script>        
       </div>
       <script type="text/javascript">
-         var zoom = 6;
-         var startLat = 44.77588506;
-         var startLong = 10.441915884;
+
+         var zoomProvince = 8;
+         var zoomRegioni = 7;
+         var zoomEuropa = 5;
+
+         var startLatProv = 44.96085;
+         var startLongProv = 10.472717;
+
+         var startLatReg = 42.947856;
+         var startLongReg = 12.639771;
+
+         var startLatEur = 52.797673;
+         var startLongEur = 16.809082;
 
          var valoreMassimoProv = 40;
          var valoreMinimoProv = 0;
@@ -86,7 +100,7 @@
          var valoreMassimoReg = 1500;
          var valoreMinimoReg = 0;      
  
-         var valoreMassimoEur = 3500;
+         var valoreMassimoEur = 43500;
          var valoreMinimoEur = 0;      
          
 
@@ -144,9 +158,9 @@
          )
 
          var map = L.map('mapid', {
-		                   center: [startLat, startLong],
-		                     zoom: zoom,
-		                   layers: [layerProvince]
+		                   center: [startLatProv, startLongProv],
+		                     zoom: zoomProvince,
+                         layers: [layerProvince]
                     });
 
          var contesto = "province"
@@ -191,9 +205,20 @@
          };
 
          var funInfoEuropa = function (props) {
-
+            let strPrefix = "";
+            if (props && props.diff_casi_per_regioni > 0) {
+               strPrefix = "+";
+            }
             this._div.innerHTML =
-               "<h4>COVID 19 - Europa</h4>" 
+               "<h4>COVID 19 - Europa</h4>" +
+               (props
+                  ? "<b>" +
+                  props.NOME_REG +
+                  "</b><br />" +
+                  props.diff_casi +
+                  " positivi residui" +
+                  "<br />( "+ strPrefix + props.diff_casi_per_regioni + " rispetto a ieri )" 
+                  : "passa sopra uno stato <br> o trascina lo slider per modificare la legenda");
          
          };
 
@@ -226,18 +251,27 @@
                valoreMinimo = valoreMinimoReg;  
                geojson = geojsonRegioni;
                info.update = funInfoRegioni;
+               map.flyTo(L.latLng(startLatReg, startLongReg), zoomRegioni, {
+                  animate: true
+               } );
             } else if (e.name === "Dati provinciali"){
                contesto = "province";
                valoreMassimo = valoreMassimoProv;
                valoreMinimo = valoreMinimoProv;
                geojson = geojsonProv;        
-               info.update = funInfoProvince;          
+               info.update = funInfoProvince;  
+               map.flyTo(L.latLng(startLatProv, startLongProv), zoomProvince, {
+                  animate: true
+               } );      
             } else {
                contesto = "europa";
                valoreMassimo = valoreMassimoEur;
                valoreMinimo = valoreMinimoEur;
                geojson = geojsonEuropa;        
-               info.update = funInfoEuropa;                   
+               info.update = funInfoEuropa;   
+               map.flyTo(L.latLng(startLatEur, startLongEur), zoomEuropa, {
+                  animate: true
+               } );             
             }
             geojson.resetStyle();         
             geojson.addTo(map);
@@ -258,9 +292,10 @@
                                         "#fdbb84", "#fdd49e", "#fee8c8", "#fff7ec"],
                            "regioni" : ["#005824", "#238b45", "#41ae76", "#66c2a4",
                                         "#99d8c9", "#ccece6", "#e5f5f9", "#f7fcfd"],
-                            "europa" : ["#005824", "#238b45", "#41ae76", "#66c2a4",
-                                        "#99d8c9", "#ccece6", "#e5f5f9", "#f7fcfd"]};
-            
+                            "europa" : ["#084594", "#2171b5", "#4292c6", "#6baed6",
+                                        "#9ecae1", "#c6dbef", "#deebf7", "#f7fbff"]};
+
+                                           
             return d > valoreMinimo + ampFasc * 6
                ? colorArrays[contesto][0]
                : d > valoreMinimo + ampFasc * 5
@@ -393,6 +428,7 @@
             map.removeControl(legend);
             map.addControl(legend);
             geojson.resetStyle();
+            latlong.innerHTML = map.getCenter();
          };
       </script>
       <script type="text/javascript" src="aggiornamento.js"></script>
