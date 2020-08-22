@@ -11,10 +11,13 @@ def diffData(aStringDay):
     else:
         lastDay = aStringDay
 
-    date_time_obj = datetime.datetime.strptime(lastDay,  '%Y%m%d')
+    date_time_obj = datetime.datetime.strptime(lastDay,  '%Y%m%d') - timedelta(days=1)
     previousDay = (date_time_obj.date() - timedelta(days=1)).strftime("%m-%d-%Y")
 
     lastDayFormatted = date_time_obj.strftime("%m-%d-%Y")
+
+    print(f"{lastDayFormatted}")
+    print(f"{previousDay}")
 
     #remoteHomeDir = "D:/progetti/covid19-world/covid/csse_covid_19_data/csse_covid_19_daily_reports/"
     #homeDir = "D:/progetti/leaftletjs/"

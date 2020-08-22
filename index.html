@@ -77,9 +77,16 @@
          <script
             type="text/javascript"        
             src="province.dati.GeoJSonDiff.js"
-         ></script>        
+         ></script>     
+
+         <!-- dt_aggiornamento.italia
+              dt_aggiornamento.europa
+         -->
+         <script type="text/javascript" src="aggiornamento.js"></script>
       </div>
       <script type="text/javascript">
+         let data_aggiornamento = document.getElementById("data_aggiornamento");
+         data_aggiornamento.innerText = dt_aggiornamento.italia;
 
          var zoomProvince = 8;
          var zoomRegioni = 7;
@@ -254,6 +261,7 @@
                map.flyTo(L.latLng(startLatReg, startLongReg), zoomRegioni, {
                   animate: true
                } );
+               data_aggiornamento.innerText = dt_aggiornamento.italia;
             } else if (e.name === "Dati provinciali"){
                contesto = "province";
                valoreMassimo = valoreMassimoProv;
@@ -263,6 +271,7 @@
                map.flyTo(L.latLng(startLatProv, startLongProv), zoomProvince, {
                   animate: true
                } );      
+               data_aggiornamento.innerText = dt_aggiornamento.italia;
             } else {
                contesto = "europa";
                valoreMassimo = valoreMassimoEur;
@@ -271,7 +280,8 @@
                info.update = funInfoEuropa;   
                map.flyTo(L.latLng(startLatEur, startLongEur), zoomEuropa, {
                   animate: true
-               } );             
+               } ); 
+               data_aggiornamento.innerText = dt_aggiornamento.europa;           
             }
             geojson.resetStyle();         
             geojson.addTo(map);
@@ -431,6 +441,6 @@
             latlong.innerHTML = map.getCenter();
          };
       </script>
-      <script type="text/javascript" src="aggiornamento.js"></script>
+
    </body>
 </html>

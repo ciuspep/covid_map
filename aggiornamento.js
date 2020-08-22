@@ -1,2 +1,4 @@
-let data_aggiornamento = document.getElementById("data_aggiornamento");
-data_aggiornamento.innerText = "19/07/2020";
+var dt_aggiornamento = {
+    italia: "21/08/2020",
+    europa: "20/08/2020"
+}
