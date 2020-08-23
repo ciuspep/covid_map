@@ -48,4 +48,18 @@ gawk -f %currdir%\completaGeoJsonEuropa.awk %currdir%\europe.geojson.js > %currd
 
 rem **** fine elaborazione europa ****
 
+@echo off
+
+set data_italia=
+for /f "delims=" %%a in ('python calcolaDataAggiornamento.py D:\progetti\covid19-italia\covid2\legacy\dati-province\ dpc-covid19-ita-province-*.csv "dpc-covid19-ita-province-([0-2][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9]).csv" 1:2:3') do @set data_italia=%%a
+
+set data_europa=
+for /f "delims=" %%a in ('python calcolaDataAggiornamento.py D:\progetti\covid19-world\covid\csse_covid_19_data\csse_covid_19_daily_reports *.csv "([0-9][0-9])-([0-9][0-9])-([0-9][0-9][0-9][0-9]).csv" 3:1:2') do @set data_europa=%%a
+
+echo var dt_aggiornamento = { > aggiornamento.js
+echo     italia: "%data_italia%", >> aggiornamento.js
+echo     europa: "%data_europa%" >> aggiornamento.js
+echo }                        >> aggiornamento.js   
+
+
 pause
