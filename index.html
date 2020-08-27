@@ -187,9 +187,9 @@
                   ? "<b>" +
                   props.NOME_PRO +
                   "</b><br />" +
-                  props.diff_casi +
+                  new Intl.NumberFormat('it-IT').format(props.diff_casi) +
                   " nuovi positivi</br>(su " +
-                  props.totale_casi +
+                  new Intl.NumberFormat('it-IT').format(props.totale_casi) +
                   " totali)"
                   : "passa sopra una provincia <br> o trascina lo slider per modificare la legenda");
          };
@@ -205,9 +205,9 @@
                   ? "<b>" +
                   props.NOME_REG +
                   "</b><br />" +
-                  props.diff_casi +
+                  new Intl.NumberFormat('it-IT').format(props.diff_casi) +
                   " positivi residui" +
-                  "<br />( "+ strPrefix + props.diff_casi_per_regioni + " rispetto a ieri )" 
+                  "<br />( "+ strPrefix + new Intl.NumberFormat('it-IT').format(props.diff_casi_per_regioni) + " rispetto a ieri )" 
                   : "passa sopra una regione <br> o trascina lo slider per modificare la legenda");
          };
 
@@ -222,9 +222,9 @@
                   ? "<b>" +
                   props.NOME_REG +
                   "</b><br />" +
-                  props.diff_casi +
+                  new Intl.NumberFormat('it-IT').format(props.diff_casi) +
                   " positivi residui" +
-                  "<br />( "+ strPrefix + props.diff_casi_per_regioni + " rispetto a ieri )" 
+                  "<br />( "+ strPrefix + new Intl.NumberFormat('it-IT').format(props.diff_casi_per_regioni) + " rispetto a ieri )" 
                   : "passa sopra uno stato <br> o trascina lo slider per modificare la legenda");
          
          };
@@ -421,8 +421,8 @@
                   '<i style="background:' +
                      currColor +
                      '"></i> ' +
-                     from +
-                     (to ? "&ndash;" + to : "+")
+                     new Intl.NumberFormat('it-IT').format(from) +
+                     (to ? "&ndash;" + new Intl.NumberFormat('it-IT').format(to) : "+")
                );
             }
 
